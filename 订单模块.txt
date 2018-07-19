@@ -1,0 +1,167 @@
+*** Settings ***
+Suite Setup       setup    order_item
+Suite Teardown    teardown
+Test Setup        dingdan_setup
+Test Teardown     dingdan_teardown
+Library           SeleniumLibrary
+Library           OperatingSystem
+Library           DatabaseLibrary
+Resource          mdres.txt
+Library           AutoItLibrary
+Variables         canshu.py
+
+*** Test Cases ***
+dingdan-01
+    [Documentation]    xxx购物车基本功能
+    [Tags]    high
+    ${y}    Row Count    select * from scott.order_item where quantity=134 and name='ipad';
+    log    ${y}
+    ${z}    Evaluate    str(${y}+1)
+    Click Link    自动化测试课程
+    Wait Until Element Is Visible    id=pay    #显示等待网页下载成功
+    Execute Javascript    $("#ProductName").val('ipad')    #jquery代码
+    Comment    Input Text    id=ProductName    ipad
+    Execute Javascript    document.getElementById('Quantity').value='134'    #网页通用代码
+    Comment    Input Text    id=Quantity    134
+    log    4，提交
+    Click Element    id=submitBtn
+    log    5，确认提交成功
+    log    5.1，提示信息ok
+    Wait Until Page Contains    你购买了ipad，一共134件。    #等待后台处理15秒，检查页面信息
+    Page Should Contain    你购买了ipad，一共134件。    \    #第一种检查方式
+    ${x}    Get Text    id=msg
+    Should Be Equal    ${x}    你购买了ipad，一共134件。    #第二种检查方式
+    log    5.2，购物车信息ok
+    Select Frame    id=fra    #进入frame页面
+    Select From List By Label    id=buy    产品:ipad,数量:134    #处理下拉列表
+    log    5.3，确认后台数据库订单信息正确
+    Wait Until Keyword Succeeds    30    1    Check If Exists In Database    select * from scott.order_item where quantity=134 and name='ipad';    #确认至少一行
+    Row Count Is Equal To X    select * from scott.order_item where quantity=134 and name='ipad';    ${z}    #确认有且只有一行
+    log    6，点击付款
+    Unselect Frame    #退出frame页面
+    Click Button    付款
+    Handle Alert    ACCEPT    #处理弹出的alert对话框
+    log    7，切换到新窗口
+    Select Window    付款    #切换窗口
+    ${m}    Get Window Handles    #获得窗口的句柄
+    Select Window    ${m[-1]}    #处理没有title的窗口
+    log    8,输入银行卡号，完成付款
+    Input Text    id=cardno    368748164811
+    Click Button    付款
+    Handle Alert
+
+dingdan-02
+    [Documentation]    xxx购物车基本功能
+    [Tags]    high
+    ${y}    Row Count    select * from scott.order_item where quantity=134 and name='ipad';
+    log    ${y}
+    ${z}    Evaluate    str(${y}+1)
+    Click Link    xpath=/html/body/div[1]/div[1]/div/div/div/ul/li[3]/a
+    Wait Until Element Is Visible    id=pay    #显示等待网页下载成功
+    Input Text    css=html.ng-scope body div.container div div.ng-scope table#buy tbody tr td input#ProductName    ipad
+    Input Text    xpath=//*[@id="Quantity"]    134    #xpath定位
+    log    4，提交
+    Click Element    id=submitBtn
+    log    5，确认提交成功
+    log    5.1，提示信息ok
+    Wait Until Page Contains    你购买了ipad，一共134件。    #等待后台处理15秒，检查页面信息
+    Page Should Contain    你购买了ipad，一共134件。    \    #第一种检查方式
+    ${x}    Get Text    id=msg
+    Should Be Equal    ${x}    你购买了ipad，一共134件。    #第二种检查方式
+    log    5.2，购物车信息ok
+    Select Frame    id=fra    #进入frame页面
+    Select From List By Label    id=buy    产品:ipad,数量:134    #处理下拉列表
+    log    5.3，确认后台数据库订单信息正确
+    Wait Until Keyword Succeeds    30    1    Check If Exists In Database    select * from scott.order_item where quantity=134 and name='ipad';
+    Row Count Is Equal To X    select * from scott.order_item where quantity=134 and name='ipad';    ${z}    #确认有且只有一行
+    log    6，点击付款
+    Unselect Frame    #退出frame页面
+    Click Button    付款
+    Handle Alert    ACCEPT    #处理弹出的alert对话框
+    log    7，切换到新窗口
+    Select Window    付款    #切换窗口
+    sleep    2
+    ${m}    Get Window Handles    #获得窗口的句柄
+    Select Window    ${m[-1]}    #处理没有title的窗口
+    log    8,输入银行卡号，完成付款
+    Input Text    id=cardno    368748164811
+    Click Button    付款
+    Handle Alert
+
+dingdan_03
+    [Template]    tpl_order
+    ipad    123
+    苹果    321
+
+dingdan_riqi
+    ${y}    Row Count    select * from scott.order_item where quantity=134 and name='ipad';
+    log    ${y}
+    ${z}    Evaluate    str(${y}+1)
+    Click Link    自动化测试课程
+    Wait Until Element Is Visible    id=pay    #显示等待网页下载成功
+    Click Element    datepicker    #日期控件
+    Click Element    xpath=//*[@id="ui-datepicker-div"]/table/tbody/tr[1]/td[3]/a
+    Execute Javascript    document.getElementById('datepicker').readOnly=false    #执行js代码
+    Input Text    datepicker    08/20/2018    #输入日期
+    Sleep    5
+
+dingdan-04
+    Click Link    自动化测试课程
+    Wait Until Element Is Visible    link=上传下载demo页面
+    Click Link    上传下载demo页面
+    Wait Until Element Is Visible    id=file
+    Click Element    id=file
+    Win Wait    打开    \    TimeOut=20
+    Win Activate    打开
+    Comment    Control Set Text    \    \    strControl=Edit1     strControlText=${CURDIR}${/}mdres.txt
+    Control Set Text    \    \    strControl=Edit1    strControlText=C:\Python27\Scripts\RFtest\mdres.txt
+    Control Click    \    \    Button1
+    Sleep    3
+
+dingdan-canshuhua
+    [Template]    tpl_order
+    :FOR    ${i}    in     @{DATA_CANSHU}
+    \    ${i[0]}    ${i[1]}
+
+*** Keywords ***
+dingdan_setup
+    Execute Sql String    delete from order_item
+
+dingdan_teardown
+    Select Window
+
+tpl_order
+    [Arguments]    ${pname}    ${quan}
+    ${y}    Row Count    select * from scott.order_item where quantity=${quan} and name='${pname}';
+    log    ${y}
+    ${z}    Evaluate    str(${y}+1)
+    Click Link    自动化测试课程
+    Wait Until Element Is Visible    id=pay
+    Input Text    id=ProductName    ${pname}
+    Input Text    id=Quantity    ${quan}
+    log    4，提交
+    Click Element    id=submitBtn
+    log    5，确认提交成功
+    log    5.1，提示信息ok
+    Comment    Page Should Contain    你购买了${pname}，一共${quan}件。    \    #第一种检查方式
+    ${x}    Get Text    id=msg
+    Should Be Equal    ${x}    你购买了${pname}，一共${quan}件。    #第二种检查方式
+    log    5.2，购物车信息ok
+    Select Frame    id=fra    #进入frame页面
+    Select From List By Label    id=buy    产品:${pname},数量:${quan}    #处理下拉列表
+    log    5.3，确认后台数据库订单信息正确
+    Check If Exists In Database    select * from scott.order_item where quantity=${quan} and name='${pname}';    #确认至少一行
+    Row Count Is Equal To X    select * from scott.order_item where quantity=${quan} and name='${pname}';    ${z}    #确认有且只有一行
+    log    6，点击付款
+    Unselect Frame    #退出frame页面
+    Click Button    付款
+    Handle Alert    ACCEPT    #处理弹出的alert对话框
+    log    7，切换到新窗口
+    Select Window    付款    #切换窗口
+    ${m}    Get Window Handles    #获得窗口的句柄
+    Select Window    ${m[-1]}    #处理没有title的窗口
+    log    8,输入银行卡号，完成付款
+    Input Text    id=cardno    368748164811
+    Click Button    付款
+    Handle Alert
+    Select Window

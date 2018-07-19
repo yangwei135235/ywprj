@@ -1,0 +1,44 @@
+*** Settings ***
+Suite Setup       setup    todo
+Suite Teardown    teardown
+Test Setup        zhuce_setup
+Resource          mdres.txt
+Library           SeleniumLibrary
+Library           DatabaseLibrary
+Library           OperatingSystem
+
+*** Test Cases ***
+zhuce-01
+    Comment    Open Browser    http://${ip}/mt    chrome
+    ${x}    Row Count    select * from todo;
+    ${y}    Evaluate    str(${x}+1)
+    ${m}    Row Count    select \ * from userinfo;
+    ${n}    Evaluate    str(${m}+1)
+    Click Link    接口测试课程
+    Click Link    点击..
+    Wait Until Page Contains    to login
+    Input Text    id=firstName    yang
+    Input Text    id=lastName    wei
+    Input Text    id=userName    yangwei
+    Input Text    id=email    871505089@qq.com
+    Input Password    id=password    123456
+    Click Button    Sign Up
+    Click Link    Click here..
+    Wait Until Page Contains    新用户 ?
+    Input Text    id=j_username    yangwei
+    Input Text    id=j_password    123456
+    Click Button    登录
+    Wait Until Page Contains    Todo List
+    Input Text    id=inputName    yangwei135235
+    Select From List By Value    id=priority    HIGH
+    Click Element    css=body > div.container > div:nth-child(3) > div.control-group.ng-scope > form > div:nth-child(3) > div > input
+    Click Element    css=body > div.container > div:nth-child(3) > div.control-group.ng-scope > form > div:nth-child(3) > div > ul > li:nth-child(1) > table > tbody > tr:nth-child(5) > td:nth-child(4) > button
+    Click Button    Add Todo
+    Comment    Click Button    Remove
+    Row Count Is Equal To X    select * from todo where name='yangwei135235';    ${y}
+    Row Count Is Equal To X    select * from userinfo where user_name='yangwei';    ${n}
+    Click Button    Logout
+
+*** Keywords ***
+zhuce_setup
+    Execute Sql String    delete from userinfo

@@ -1,0 +1,26 @@
+*** Test Cases ***
+case-01
+    log    hello world!
+    ${x}    Set Variable    10    #设置变量x的值为字符串10
+    ${y}    Set Variable    ${10}    #设置变量y的值为数值10
+    log    ${x}
+    ${l}    Create List    a    b    ${10}    #创建列表['a','b',10]
+    : FOR    ${i}    IN    @{l}
+    \    log    ${i}
+    ${d}    Create Dictionary    china=中国    usa=美国
+    log    ${d['china']}
+    Run Keyword If    $x=='10'    log    ok
+    Run Keyword If    $y==10    log    pok
+    Should Be Equal    ${x}    10
+    Set Global Variable    ${xx}    12345    #设置全局变量,可跨测试用例使用
+
+case-02
+    ${x}    Set Variable    ${3}
+    ${y}    Evaluate    ${x}+1
+    log    ${y}
+    log    ${xx}
+    log    ${/}
+    log    ${:}
+    log    ${CURDIR}${/}mdres.txt    #内置变量
+    log    %{path}    #path的环境变量
+    log    ${CURDIR}

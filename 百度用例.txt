@@ -1,0 +1,16 @@
+*** Settings ***
+Library           SeleniumLibrary
+Library           OperatingSystem
+
+*** Test Cases ***
+case_baidu_1
+    [Documentation]    百度测试用例
+    [Tags]    high
+    OperatingSystem.run    taskkill /f /im chromedriver.exe
+    Open Browser    https://www.baidu.com/    chrome
+    Input Text    id=kw    门道
+    Click Element    id=su
+    Wait Until Element Is Visible    xpath=//*[@id="10"]/h3/a
+    Click Link    xpath=//*[@id="5"]/h3/a
+    Sleep    3
+    Close Browser
