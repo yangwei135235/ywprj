@@ -1,3 +1,7 @@
+*** Settings ***
+Library           CSVLibrary
+Library           ExcelLibrary
+
 *** Test Cases ***
 case-01
     log    hello world!
@@ -24,3 +28,16 @@ case-02
     log    ${CURDIR}${/}mdres.txt    #内置变量
     log    %{path}    #path的环境变量
     log    ${CURDIR}
+
+case-03
+    Open Excel    ${CURDIR}${/}canshu-01.xls
+    Comment    ${x}    Get Row Values    Sheet1    0
+    ${CELL_VAL}    Read Cell Data By Name    Sheet1    A2
+    :FOR    ${n}    in     ${CELL_VAL}
+    \    log    ${n}
+
+case-04
+    ${y}    Read Csv File To List    ${CURDIR}${/}canshu-02.csv
+    :FOR    ${x}    in    @{y}
+    \    log    ${x[0]}
+    \    log    ${x[1]}
