@@ -30,14 +30,19 @@ case-02
     log    ${CURDIR}
 
 case-03
-    Open Excel    ${CURDIR}${/}canshu-01.xls
+    Open Excel    ${CURDIR}${/}testdata${/}canshu-01.xls
     Comment    ${x}    Get Row Values    Sheet1    0
     ${CELL_VAL}    Read Cell Data By Name    Sheet1    A2
-    :FOR    ${n}    in     ${CELL_VAL}
+    : FOR    ${n}    IN    ${CELL_VAL}
     \    log    ${n}
 
 case-04
-    ${y}    Read Csv File To List    ${CURDIR}${/}canshu-02.csv
-    :FOR    ${x}    in    @{y}
+    ${y}    Read Csv File To List    ${CURDIR}${/}testdata${/}canshu-02.csv
+    : FOR    ${x}    IN    @{y}
     \    log    ${x[0]}
     \    log    ${x[1]}
+
+case-05
+    log    ${CURDIR}${/}testdata
+    Comment    :FOR    ${i}    IN    @{DATA_ORDER_CASE_03}
+    Comment    \    log    ${i[0]}    ${i[1]}
